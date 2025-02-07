@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+echo "export env variables for crontab"
+printenv | grep -v "no_proxy" >> /etc/environment
+
+supervisord -n -c /etc/supervisord.conf
+
+exec "$@"

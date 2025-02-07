@@ -1,0 +1,20 @@
+name: bimi
+
+services:
+
+  container:
+    container_name: bimi_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8088:80"
+    networks:
+      - bimi-network
+    volumes:
+     - ./../:/var/www/bimi
+
+networks:
+  bimi-network:
+    name: bimi-network
+    driver: bridge
