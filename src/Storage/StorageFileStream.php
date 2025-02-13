@@ -16,8 +16,8 @@ class StorageFileStream implements StreamInterface {
     private ?array $_metadata = null;
     private ?int $_size = null;
 
-    public function __construct($stream, $options = [])
-    {
+    public function __construct($stream, $options = []) {
+
         if (!is_resource($stream)) throw new \InvalidArgumentException('Stream must be a resource');
 
         if (isset($options['size'])) $this->_size = $options['size'];
@@ -43,10 +43,12 @@ class StorageFileStream implements StreamInterface {
      * @return string
      */
     public function __toString(): string {
+
         if (!$this->_resource || !$this->isRead()) return "";
         $this->rewind(0);
         $content = stream_get_contents($this->stream);
         return $content === false ? "" : $content;
+
     }
 
     /**
@@ -55,16 +57,20 @@ class StorageFileStream implements StreamInterface {
      * @return void
      */
     public function close(): void {
+
         if (is_resource($this->_resource)) fclose($this->_resource);
         $this->detach();
+
     }
 
     public function attach($resource) {
+
         $this->_resource = $resource;
         $this->_metadata = array_merge($this->_metadata, stream_get_meta_data($resource));
 
         $this->_metadata["is_readable"] = isset(self::$readWriteHash['read'][$this->_metadata['mode']]);
         $this->_metadata["is_writable"] = isset(self::$readWriteHash['write'][$this->_metadata['mode']]);
+
     }
 
     /**
@@ -75,10 +81,12 @@ class StorageFileStream implements StreamInterface {
      * @return resource|null Underlying PHP stream, if any
      */
     public function detach() {
+
        $this->_currentPosition = 0;
        $this->_resource = null;
        $this->_metadata = null;
        $this->_size = null;
+       
     }
 
     /**

@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Bidoch78\Bimi\Storage;
 
-use Bidoch78\Bimi\Storage\StorageFileAbstract;
-use Bidoch78\Bimi\Storage\StorageFileStream;
+use Bidoch78\Bimi\Storage\StorageDirectoryAbstract;
+use Bidoch78\Bimi\Storage\StorageFile;
 
-use Psr\Http\Message\StreamInterface;
+class StorageDirectory extends StorageDirectoryAbstract {
 
-class StorageFile extends StorageFileAbstract {
-
-    private ?array $_info = null;
+    private ?array $_info = null;    
 
     public function __construct(string $path, array $options = null) {
         parent::__construct($path, $options);
@@ -26,15 +24,15 @@ class StorageFile extends StorageFileAbstract {
 
         if ($this->_exist) return;
 
-        $this->_exist = is_file($this->_path);
-
+        $this->_exist = is_dir($this->_path);
+        
         if (!$this->_exist) {
             $this->reset();            
             $this->_error = self::ERROR_NOTEXISTS;
             return;
         }
 
-        $this->_info = pathinfo($this->_path);
+        $this->_info = pathinfo(realpath($this->_path));
 
         parent::loadStatistics();
         
@@ -45,7 +43,7 @@ class StorageFile extends StorageFileAbstract {
     }
     
     public function getExtension(): ?string {
-        return (!$this->_error) ? $this->_info["extension"] : null;
+        return null;
     }
 
     public function getDirName(): ?string {
@@ -57,21 +55,28 @@ class StorageFile extends StorageFileAbstract {
     }
 
     public function isDir(): bool {
-        return false;
-    }
-
-    public function isFile(): bool {
         return $this->_exist;
     }
 
-    public function getStream(): StreamInterface {
+    public function isFile(): bool {
+        return false;
+    }
+    
+    protected function scan(): void {
 
-        if (!$this->exists()) throw new \InvalidArgumentException('file `' + $this->_path + '` not exists');
+        if (!$this->_exist) return;
+
+        $dir = $this->getPath();
         
-        $file = fopen($this->_path, 'r');
-        if ($file === false) throw new \InvalidArgumentException('file `' + $this->_path + '` not accessible');
+        $lastChar = $dir[strlen($dir)-1];
+        if (!($lastChar == "/" || $lastChar == "\\")) $dir . DIRECTORY_SEPARATOR;
 
-        return new StorageFileStream($file, [ "size" => $this->getSize() ]);
+        foreach(scandir($dir) as $i) {
+            if ($i == "." || $i == "..") continue;
+            $item = $dir . $i; 
+            if (is_file($item)) $this->addItem(new StorageDirectory($item));
+            else $this->addItem(new StorageFile($item));
+        }
 
     }
 

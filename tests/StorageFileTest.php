@@ -38,7 +38,7 @@ final class StorageFileTest extends TestCase {
 
     }
 
-    #[TestDox('Test StorageFile')]
+    #[TestDox('Test StorageFileStream')]
     public function testStreamFile() {
 
         $file = new StorageFile(__DIR__ . "/test.env");
