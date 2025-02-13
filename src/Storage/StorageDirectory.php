@@ -80,8 +80,8 @@ class StorageDirectory extends StorageDirectoryAbstract {
 
     }
 
-    public function create(string $path, array $options = null): StorageInterface {
-
+    public function create(array $options = null): StorageInterface {
+       
     }
 
     public function rename(string $name, array $options = null): bool {

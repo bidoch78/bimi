@@ -6,6 +6,8 @@ namespace Bidoch78\Bimi\Storage;
 
 use Bidoch78\Bimi\Storage\StorageFileAbstract;
 use Bidoch78\Bimi\Storage\StorageFileStream;
+use Bidoch78\Bimi\Storage\StorageInterface;
+use Bidoch78\Bimi\Storage\StorageAbstract;
 
 use Psr\Http\Message\StreamInterface;
 
@@ -75,20 +77,56 @@ class StorageFile extends StorageFileAbstract {
 
     }
 
-    public function create(string $path, array $options = null): StorageInterface {
+    public function create(array $options = null): StorageInterface {
+
+        if (!$this->_exist) {
+            $handle = fopen($this->_path, "w");
+            fclose($handle);
+            $this->refresh();
+        }
+
+        return $this;
 
     }
 
     public function rename(string $name, array $options = null): bool {
 
+        if (!$this->_exist) return false;
+
+        $newPath = $this->getDirName() . DIRECTORY_SEPARATOR . $name;
+        $return = rename($this->_path, $newPath);
+        
+        if (!$return) return false;
+
+        $this->_path = $newPath;
+        $this->refresh();
+
+        return true;
+
     }
 
     public function delete(array $options = null): bool {
+
+        if (!$this->_exist) return true;
+
+        $return = unlink($this->_path);
+        if ($return) $this->refresh();
+        
+        return $return;
 
     }
 
     public function copy(StorageInterface $to, array $options = null): bool {
         
+        if (!$this->_exist) throw new \InvalidArgumentException('file `' + $this->_path + '` not exists');
+
+        if (($to instanceof StorageAbstract)) {
+            return copy($this->_path, $to->_path);
+        }
+        
+        // Use stream
+        throw \RuntimeException("stream copy need to be implemented");
+
     }
 
 }

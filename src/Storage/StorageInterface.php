@@ -29,7 +29,7 @@ interface StorageInterface {
     public function refresh(): void;
     public function reset(): void;
 
-    public function create(string $path, array $options = null): StorageInterface;
+    public function create(array $options = null): StorageInterface;
     public function rename(string $name, array $options = null): bool;
     public function delete(array $options = null): bool;
     public function copy(StorageInterface $to, array $options = null): bool;

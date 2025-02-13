@@ -11,22 +11,42 @@ use Psr\Http\Message\StreamInterface;
 use Bidoch78\Bimi\Storage\StorageFile;
 
 #[CoversClass(StorageFile::class)]
+#[CoversClass(StorageAbstract::class)]
+#[CoversClass(StorageFileAbstract::class)]
+#[CoversClass(StorageFileStream::class)]
 final class StorageFileTest extends TestCase {
 
-    #[TestDox('Test StorageFile')]
+    private static $_testFolderPath = null;
+    private static $_workOnPath = null;
+
+    public function setUp(): void {
+        self::$_testFolderPath = realpath(__DIR__ . "/../tests_folder/storage");
+        self::$_workOnPath = realpath(__DIR__ . "/../tests_folder/work_on");
+        if (!is_dir(self::$_workOnPath)) { mkdir(self::$_workOnPath); }
+        copy(self::$_testFolderPath . "/sample.pdf", self::$_workOnPath . "/sample.pdf");
+    }
+
+    public function tearDown(): void {
+        //if (is_dir(self::$_workOnPath)) rmdir(self::$_workOnPath);
+    }
+
+    #[TestDox('Test StorageFile Properties')]
     public function testValideFile() {
 
-        $file = new StorageFile(__DIR__ . "/test.env");
+        $filePath = self::$_workOnPath . "/sample.pdf";
+
+        $file = new StorageFile($filePath);
 
         $this->assertEquals($file->hasError(), false);
+        $this->assertTrue($file->exists());
         $this->assertTrue($file->isFile());
         $this->assertTrue($file->isLocal());
         $this->assertFalse($file->isLink());
         $this->assertEquals($file->isDir(), false);
-        $this->assertEquals($file->getName(), "test");
-        $this->assertEquals($file->getBaseName(), "test.env");
-        $this->assertEquals($file->getDirName(), __DIR__);
-        $this->assertEquals($file->getExtension(), "env");
+        $this->assertEquals($file->getName(), "sample");
+        $this->assertEquals($file->getBaseName(), "sample.pdf");
+        $this->assertEquals($file->getDirName(), dirname($filePath));
+        $this->assertEquals($file->getExtension(), "pdf");
         $this->assertInstanceOf(\DateTime::class, $file->getModifyTime());
         $this->assertInstanceOf(\DateTime::class, $file->getCreationTime());
         $this->assertInstanceOf(\DateTime::class, $file->getAccessTime());
@@ -38,10 +58,12 @@ final class StorageFileTest extends TestCase {
 
     }
 
-    #[TestDox('Test StorageFileStream')]
+    #[TestDox('Test StorageFileStream Stream')]
     public function testStreamFile() {
 
-        $file = new StorageFile(__DIR__ . "/test.env");
+        $filePath = self::$_workOnPath . "/sample.pdf";
+
+        $file = new StorageFile($filePath);
 
         $stream = $file->getStream();
 
@@ -57,6 +79,29 @@ final class StorageFileTest extends TestCase {
         $this->assertIsInt($stream->getSize());
 
         $stream->close();
+
+    }
+
+    #[TestDox('Test StorageFileStream Manipulation')]
+    public function testManipFile() {
+
+        $filePath = self::$_workOnPath . "/sample.pdf";
+
+        $file = new StorageFile($filePath);
+
+        $this->assertIsBool($file->copy(new StorageFile(self::$_workOnPath . "/samplecopy.pdf")));
+
+        $fileDest = new StorageFile(self::$_workOnPath . "/samplecopy.pdf");
+        $this->assertEquals($file->getSize(), $fileDest->getSize(), "Size sample.pdf <> samplecopy.pdf");
+        $this->assertEquals(crc32(file_get_contents(self::$_workOnPath . "/sample.pdf")), crc32(file_get_contents(self::$_workOnPath . "/samplecopy.pdf")), "CRC32 sample.pdf <> samplecopy.pdf");
+
+        $file = new StorageFile($filePath . "2");
+        $this->assertInstanceOf(StorageFile::class, $file->create());
+
+        $this->assertIsBool($file->rename("toto.pdf"));
+
+        $this->assertIsBool($file->delete());
+        $this->assertFalse($file->exists());
 
     }
 

@@ -10,7 +10,7 @@ use Bidoch78\Bimi\Storage\StorageAbstract;
 abstract class StorageDirectoryAbstract extends StorageAbstract implements \SeekableIterator, \Countable {
 
     private ?array $_list = null;
-    private int $_posision = 0;
+    private int $_position = 0;
     private bool $_scanned = false;
 
     protected abstract function scan(): void;

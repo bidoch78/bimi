@@ -15,7 +15,7 @@ final class EnvTest extends TestCase {
     #[TestDox('Test from .env')]
     public function testEnvFile() {
 
-        Env::setFilePath(__DIR__ . "/test.env"); 
+        Env::setFilePath(realpath(__DIR__ . "/../tests_folder/env/test.env")); 
         $this->assertEquals(Env::get("param1"), "result param1");
         $this->assertEquals(Env::get("param2"), "12345");
         $this->assertEquals(Env::get("param3"), null);

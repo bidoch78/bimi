@@ -9,10 +9,25 @@ use PHPUnit\Framework\Attributes\CoversClass;
 
 use Bidoch78\Bimi\Storage\StorageDirectory;
 
-#[CoversClass(StorageDirectory::class)]
+#[CoversClass(StorageDirectoy::class)]
+#[CoversClass(StorageAbstract::class)]
+#[CoversClass(StorageDirectoryAbstract::class)]
 final class StorageDirectoryTest extends TestCase {
 
-    #[TestDox('Test StorageDirectory')]
+    private static $_testFolderPath = null;
+    private static $_workOnPath = null;
+
+    public function setUp(): void {
+        self::$_testFolderPath = realpath(__DIR__ . "/../tests_folder");
+        self::$_workOnPath = self::$_testFolderPath . "/work_on";
+        if (!is_dir(self::$_workOnPath)) { mkdir(self::$_workOnPath); }
+    }
+
+    public function tearDown(): void {
+       //if (is_dir(self::$_workOnPath)) rmdir(self::$_workOnPath);
+    }
+
+    #[TestDox('Test StorageDirectory properties')]
     public function testValideDirectory() {
 
         $dir = new StorageDirectory(__DIR__);
@@ -36,6 +51,14 @@ final class StorageDirectoryTest extends TestCase {
         $this->assertIsString($dir->getPermission());
         $this->assertIsString($dir->getPermission(\Bidoch78\Bimi\Storage\PERMISSION_STRING));
 
+    }
+
+    #[TestDox('Test StorageDirectory manipulation')]
+    public function testValideDirectory2() {
+
+        $dir = new StorageDirectory(__DIR__);
+        $this->assertEquals($dir->hasError(), false);
+        
     }
 
 }
