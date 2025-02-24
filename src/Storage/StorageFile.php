@@ -129,4 +129,22 @@ class StorageFile extends StorageFileAbstract {
 
     }
 
+    public function getContent(): string|bool {
+        if (!$this->_exist) return false;
+        return file_get_contents($this->_path);
+    }
+
+    /* default behavoir if exists override otherwise define option [ 'appendifexist' => true ] */
+    public function putContent(string $content, array $options = null): bool {
+
+        $flag = 0;
+        if ($options && isset($options["appendifexist"]) && $options["appendifexist"] === true) $flag = FILE_APPEND;
+
+        $ret = file_put_contents($this->_path, $content, $flag);
+        $this->refresh();
+
+        return ($ret !== false);
+        
+    } 
+
 }

@@ -103,6 +103,20 @@ final class StorageFileTest extends TestCase {
         $this->assertIsBool($file->delete());
         $this->assertFalse($file->exists());
 
+        //create a file
+        $string = <<< EOT
+<xml>
+    <node1></node1>
+    <node2></node2>
+</xml>
+EOT;
+
+        $newfile = new StorageFile(self::$_workOnPath . "/create.txt");
+        $this->assertTrue($newfile->putContent($string));
+        $this->assertTrue($newfile->exists());
+
+        $this->assertEquals($newfile->getContent(), $string);
+
     }
 
 }
