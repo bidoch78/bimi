@@ -7,6 +7,12 @@ namespace Bidoch78\Bimi\Storage;
 use Psr\Http\Message\StreamInterface;
 use Bidoch78\Bimi\Storage\StorageAbstract;
 
+enum Search_Type
+{
+    case Shell;
+    case RegEx;
+}
+
 abstract class StorageDirectoryAbstract extends StorageAbstract implements \SeekableIterator, \Countable {
 
     private ?array $_list = null;
@@ -53,4 +59,7 @@ abstract class StorageDirectoryAbstract extends StorageAbstract implements \Seek
     public function rewind(): void { $this->_position = 0; }
     public function valid(): bool { $this->_runScan(); return $this->_list && isset($this->_list[$this->_position]); }
     
+    public abstract function search(Search_Type $type, string $pattern): array;
+    public abstract function get(string $name): StorageAbstract;
+
 }

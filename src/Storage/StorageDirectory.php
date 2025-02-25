@@ -96,4 +96,15 @@ class StorageDirectory extends StorageDirectoryAbstract {
         
     }
 
+    public function search(Search_Type $type, string $pattern): array {
+
+        if ($type = Search_Type::Shell)
+        if ($type = Search_Type::Regex)        
+
+    }
+
+    public function get($name): StorageAbstract {
+
+    }
+
 }

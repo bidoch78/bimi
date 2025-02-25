@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 namespace Bidoch78\Bimi\Core;
+use Bidoch78\Bimi\Storage\StorageAbstract;
 
 final class Env {
 
     private static ?array $_fileValues = null;
-    private static $_filePath = null;
+    private static ?StorageAbstract $_file = null;
 
     private static array $_order = [ 'D', 'F', 'E' ];
 
@@ -19,18 +20,19 @@ final class Env {
      *      - check environment variable
      */
 
-    public static function setFilePath(string $path): void {
-        self::$_filePath = $path;
+    public static function setFilePath(StorageAbstract $file): void {
+        self::$_file = $file;
     }
 
     public static function getDefine(string $name, string $default = null):null|string {
         return (defined($name)) ? constant($name) : null;
     }
 
-    public static function readEnvFile(string $path):array {
-        if (!is_file($path)) return [];
+    public static function readEnvFile(StorageAbstract $file):array {
+        if (!self::$_file->exists()) return [];
         $values = [];
-        foreach(file($path, FILE_IGNORE_NEW_LINES) as $line) {
+        $lines = preg_split('/\R+/', self::$_file->getContent(), 0, PREG_SPLIT_NO_EMPTY);
+        foreach($lines as $line) {
             $sep = strpos($line, "=");
             if ($sep !== false) {
                 $key = trim(substr($line, 0, $sep));
@@ -50,8 +52,8 @@ final class Env {
 
     public static function getFile(string $name, string $default = null):null|string {
         if (!self::$_fileValues) {
-            if (!self::$_filePath) return null;
-            self::$_fileValues = self::readEnvFile(self::$_filePath);
+            if (!self::$_file) return null;
+            self::$_fileValues = self::readEnvFile(self::$_file);
         }
         return isset(self::$_fileValues[$name]) ? self::$_fileValues[$name] : null;
     }
