@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bidoch78\Bimi\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -8,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 use Bidoch78\Bimi\Storage\StorageDirectory;
+use Bidoch78\Bimi\Storage\StorageFile;
 
 #[CoversClass(StorageDirectoy::class)]
 #[CoversClass(StorageAbstract::class)]
@@ -51,6 +54,9 @@ final class StorageDirectoryTest extends TestCase {
         $this->assertIsString($dir->getPermission());
         $this->assertIsString($dir->getPermission(\Bidoch78\Bimi\Storage\PERMISSION_STRING));
 
+        // $dir = new StorageDirectory(self::$_workOnPath . "/toto/popo\momo");
+        // $dir->create();
+
     }
 
     #[TestDox('Test StorageDirectory manipulation')]
@@ -59,6 +65,18 @@ final class StorageDirectoryTest extends TestCase {
         $dir = new StorageDirectory(__DIR__);
         $this->assertEquals($dir->hasError(), false);
         
+    }
+
+    #[TestDox('Test StorageDirectory get/search')]
+    public function testSearchDirectory() {
+
+        $dir = new StorageDirectory(self::$_testFolderPath);
+
+        $this->assertInstanceOf(StorageFile::class, $dir->get("storage/folder1/text1.txt"));
+        $this->assertInstanceOf(StorageDirectory::class, $dir->get("storage/folder1"));
+        //$this->assertNull($dir->get("storage/folder1popo"));
+        //var_dump($dir->get("storage/folder1/text1.txt"));
+
     }
 
 }

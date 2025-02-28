@@ -62,18 +62,21 @@ class StorageDirectory extends StorageDirectoryAbstract {
         return false;
     }
     
+    private function normalizePath(): string {
+        $dir = $this->getPath();
+        $lastChar = $dir[strlen($dir)-1];
+        if (!($lastChar == "/" || $lastChar == "\\")) $dir .= DIRECTORY_SEPARATOR;
+        return $dir;
+    }
+
     protected function scan(): void {
 
         if (!$this->_exist) return;
 
-        $dir = $this->getPath();
-        
-        $lastChar = $dir[strlen($dir)-1];
-        if (!($lastChar == "/" || $lastChar == "\\")) $dir . DIRECTORY_SEPARATOR;
-
+        $dir = $this->normalizePath();
         foreach(scandir($dir) as $i) {
             if ($i == "." || $i == "..") continue;
-            $item = $dir . $i; 
+            $item = $dir . $i;
             if (is_file($item)) $this->addItem(new StorageDirectory($item));
             else $this->addItem(new StorageFile($item));
         }
@@ -82,6 +85,8 @@ class StorageDirectory extends StorageDirectoryAbstract {
 
     public function create(array $options = null): StorageInterface {
        
+        
+
     }
 
     public function rename(string $name, array $options = null): bool {
@@ -98,13 +103,26 @@ class StorageDirectory extends StorageDirectoryAbstract {
 
     public function search(Search_Type $type, string $pattern): array {
 
-        if ($type = Search_Type::Shell)
-        if ($type = Search_Type::Regex)        
+        // if ($type = Search_Type::Shell)
+        // if ($type = Search_Type::Regex)        
 
     }
 
-    public function get($name): StorageAbstract {
+    public function get(string $name): null|StorageAbstract {
 
+        $item = realpath($this->normalizePath() . $name);
+        if (!$item) return null;
+        return (is_file($item)) ? new StorageFile($item) : new StorageDirectory($item);
+
+    }
+
+    public function addFolder(string $name, bool $onlyprepare = true): null|StorageAbstract {
+
+    }
+
+    public function addFile(string $name, bool $onlyprepare = true): null|StorageAbstract {
+
+        
     }
 
 }

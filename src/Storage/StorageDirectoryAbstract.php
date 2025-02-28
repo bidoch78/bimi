@@ -60,6 +60,10 @@ abstract class StorageDirectoryAbstract extends StorageAbstract implements \Seek
     public function valid(): bool { $this->_runScan(); return $this->_list && isset($this->_list[$this->_position]); }
     
     public abstract function search(Search_Type $type, string $pattern): array;
-    public abstract function get(string $name): StorageAbstract;
+    public abstract function get(string $name): null|StorageAbstract;
 
+    /* onlyprepare=true => generate object with good info but may be not create */
+    public abstract function addFolder(string $name, bool $onlyprepare = true): null|StorageAbstract;
+    public abstract function addFile(string $name, bool $onlyprepare = true): null|StorageAbstract;
+ 
 }
